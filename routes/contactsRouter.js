@@ -1,10 +1,12 @@
 const express = require('express');
+
 const {
   listContacts,
   getContactById,
   removeContact,
   addContact,
   updateContact,
+  updateStatusContact,
 } = require('../controllers/contactsController');
 
 const router = express.Router();
@@ -16,5 +18,7 @@ router
   .get(getContactById)
   .delete(removeContact)
   .put(updateContact);
+
+router.patch('/:contactId/favourite', updateStatusContact);
 
 module.exports = router;

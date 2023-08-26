@@ -1,18 +1,22 @@
-const Joi = require('joi');
+const mongoose = require('mongoose');
 
-const contactSchema = Joi.object({
-  name: Joi.string().alphanum().min(3).max(30).required(),
-
-  email: Joi.string()
-    .email({
-      minDomainSegments: 2,
-      tlds: { allow: ['com', 'net', 'pl'] },
-    })
-    .required(),
-
-  phone: Joi.string()
-    .pattern(/^[0-9]{10}$/)
-    .required(),
+const contactSchema = new mongoose.Schema({
+  name: {
+    type: String,
+    required: [true, 'Set name for contact'],
+  },
+  email: {
+    type: String,
+  },
+  phone: {
+    type: String,
+  },
+  favorite: {
+    type: Boolean,
+    default: false,
+  },
 });
 
-module.exports = contactSchema;
+const Contact = mongoose.model('Contact', contactSchema);
+
+module.exports = Contact;
