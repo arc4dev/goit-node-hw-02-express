@@ -1,6 +1,6 @@
 const Contact = require('../models/contactModel');
 
-const listContacts = async (req, res) => {
+exports.listContacts = async (req, res) => {
   try {
     const contacts = await Contact.find();
 
@@ -12,7 +12,7 @@ const listContacts = async (req, res) => {
   }
 };
 
-const getContactById = async (req, res) => {
+exports.getContactById = async (req, res) => {
   try {
     const contact = await Contact.findById(req.params.contactId);
 
@@ -25,7 +25,7 @@ const getContactById = async (req, res) => {
   }
 };
 
-const removeContact = async (req, res) => {
+exports.removeContact = async (req, res) => {
   try {
     const contact = await Contact.findByIdAndDelete(req.params.contactId);
 
@@ -38,7 +38,7 @@ const removeContact = async (req, res) => {
   }
 };
 
-const addContact = async (req, res) => {
+exports.addContact = async (req, res) => {
   try {
     const newContact = await Contact.create(req.body);
 
@@ -49,7 +49,7 @@ const addContact = async (req, res) => {
   }
 };
 
-const updateContact = async (req, res) => {
+exports.updateContact = async (req, res) => {
   try {
     const updatedContact = await Contact.findByIdAndUpdate(
       req.params.contactId,
@@ -69,7 +69,7 @@ const updateContact = async (req, res) => {
   }
 };
 
-const updateStatusContact = async (req, res) => {
+exports.updateStatusContact = async (req, res) => {
   try {
     if (!req.body.favorite) throw new Error('Missing (favorite) field!');
 
@@ -89,13 +89,4 @@ const updateStatusContact = async (req, res) => {
     console.error(err.message);
     res.status(400).json({ status: 'fail', message: err.message });
   }
-};
-
-module.exports = {
-  listContacts,
-  getContactById,
-  removeContact,
-  addContact,
-  updateContact,
-  updateStatusContact,
 };

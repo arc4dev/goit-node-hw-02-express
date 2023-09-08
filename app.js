@@ -6,6 +6,7 @@ const cors = require('cors');
 
 const contactsRouter = require('./routes/contactRouter');
 const userRouter = require('./routes/userRouter');
+const cookieParser = require('cookie-parser');
 
 const app = express();
 
@@ -14,6 +15,7 @@ const formatsLogger = app.get('env') === 'development' ? 'dev' : 'short';
 // Middlewares
 app.use(logger(formatsLogger));
 app.use(cors());
+app.use(cookieParser());
 app.use(express.json());
 
 // Routes

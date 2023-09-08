@@ -9,13 +9,15 @@ const {
   updateStatusContact,
 } = require('../controllers/contactController');
 
+const { protect } = require('../controllers/authController');
+
 const router = express.Router();
 
 router.route('/').get(listContacts).post(addContact);
 
 router
   .route('/:contactId')
-  .get(getContactById)
+  .get(protect, getContactById)
   .delete(removeContact)
   .put(updateContact);
 

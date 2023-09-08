@@ -34,6 +34,13 @@ userSchema.pre('save', async function (next) {
   next();
 });
 
+// Exclude fields pre find
+userSchema.pre(/^find/, function (next) {
+  this.select('-__v -password');
+
+  next();
+});
+
 userSchema.methods.isCorrectPassword = async function (
   inputedPassword,
   userPassword
