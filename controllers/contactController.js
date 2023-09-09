@@ -1,92 +1,66 @@
 const Contact = require('../models/contactModel');
+const AppError = require('../utils/AppError');
+const catchAsync = require('../utils/catchAsync');
 
-exports.listContacts = async (req, res) => {
-  try {
-    const contacts = await Contact.find();
+exports.listContacts = catchAsync(async (req, res, next) => {
+  const contacts = await Contact.find();
 
-    res
-      .status(200)
-      .json({ status: 'success', results: contacts.length, data: contacts });
-  } catch (err) {
-    console.log(err.message);
-  }
-};
+  res
+    .status(200)
+    .json({ status: 'success', results: contacts.length, data: contacts });
+});
 
-exports.getContactById = async (req, res) => {
-  try {
-    const contact = await Contact.findById(req.params.contactId);
+exports.getContactById = catchAsync(async (req, res, next) => {
+  const contact = await Contact.findById(req.params.contactId);
 
-    if (!contact) throw new Error('Contact not found!');
+  if (!contact) return next(new AppError('Contact not found', 404));
 
-    res.status(200).json({ status: 'success', data: contact });
-  } catch (err) {
-    console.log(err.message);
-    res.status(400).json({ status: 'fail', message: err.message });
-  }
-};
+  res.status(200).json({ status: 'success', data: contact });
+});
 
-exports.removeContact = async (req, res) => {
-  try {
-    const contact = await Contact.findByIdAndDelete(req.params.contactId);
+exports.removeContact = catchAsync(async (req, res, next) => {
+  const contact = await Contact.findByIdAndDelete(req.params.contactId);
 
-    if (!contact) throw new Error('Contact not found!');
+  if (!contact) return next(new AppError('Contact not found', 404));
 
-    res.status(200).json({ status: 'success', message: 'Contact deleted' });
-  } catch (err) {
-    console.log(err.message);
-    res.status(400).json({ status: 'fail', message: err.message });
-  }
-};
+  res.status(200).json({ status: 'success', message: 'Contact deleted' });
+});
 
-exports.addContact = async (req, res) => {
-  try {
-    const newContact = await Contact.create(req.body);
+exports.addContact = catchAsync(async (req, res, next) => {
+  const newContact = await Contact.create(req.body);
 
-    res.status(201).json({ status: 'success', data: newContact });
-  } catch (err) {
-    console.log(err.message);
-    res.status(400).json({ status: 'fail', message: err.message });
-  }
-};
+  res.status(201).json({ status: 'success', data: newContact });
+});
 
-exports.updateContact = async (req, res) => {
-  try {
-    const updatedContact = await Contact.findByIdAndUpdate(
-      req.params.contactId,
-      req.body,
-      {
-        new: true,
-        runValidators: true,
-      }
-    );
+exports.updateContact = catchAsync(async (req, res, next) => {
+  const updatedContact = await Contact.findByIdAndUpdate(
+    req.params.contactId,
+    req.body,
+    {
+      new: true,
+      runValidators: true,
+    }
+  );
 
-    if (!updatedContact) throw new Error('Contact not found!');
+  if (!updatedContact) return next(new AppError('Contact not found', 404));
 
-    res.status(200).json({ status: 'success', data: updatedContact });
-  } catch (err) {
-    console.error(err.message);
-    res.status(400).json({ status: 'fail', message: err.message });
-  }
-};
+  res.status(200).json({ status: 'success', data: updatedContact });
+});
 
-exports.updateStatusContact = async (req, res) => {
-  try {
-    if (!req.body.favorite) throw new Error('Missing (favorite) field!');
+exports.updateStatusContact = catchAsync(async (req, res, next) => {
+  if (!req.body.favorite)
+    return next(new AppError('Missing (favourite) field', 400));
 
-    const updatedContact = await Contact.findByIdAndUpdate(
-      req.params.contactId,
-      { favorite: req.body.favorite },
-      {
-        new: true,
-        runValidators: true,
-      }
-    );
+  const updatedContact = await Contact.findByIdAndUpdate(
+    req.params.contactId,
+    { favorite: req.body.favorite },
+    {
+      new: true,
+      runValidators: true,
+    }
+  );
 
-    if (!updatedContact) throw new Error('Contact not found!');
+  if (!updatedContact) return next(new AppError('Contact not found', 404));
 
-    res.status(200).json({ status: 'success', data: updatedContact });
-  } catch (err) {
-    console.error(err.message);
-    res.status(400).json({ status: 'fail', message: err.message });
-  }
-};
+  res.status(200).json({ status: 'success', data: updatedContact });
+});

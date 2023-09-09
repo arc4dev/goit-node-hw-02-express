@@ -7,6 +7,8 @@ const cors = require('cors');
 const contactsRouter = require('./routes/contactRouter');
 const userRouter = require('./routes/userRouter');
 const cookieParser = require('cookie-parser');
+const AppError = require('./utils/AppError');
+const errorHandler = require('./controllers/errorController');
 
 const app = express();
 
@@ -22,13 +24,11 @@ app.use(express.json());
 app.use('/api/contacts', contactsRouter);
 app.use('/users', userRouter);
 
-app.use((req, res) => {
-  res.status(404).json({ message: 'Not found' });
+app.all('*', (req, res, next) => {
+  next(new AppError('Page not found', 404));
 });
 
 // Error handler
-app.use((err, req, res, next) => {
-  res.status(500).json({ message: err.message });
-});
+app.use(errorHandler);
 
 module.exports = app;
