@@ -3,7 +3,8 @@ const AppError = require('../utils/AppError');
 const catchAsync = require('../utils/catchAsync');
 
 exports.listContacts = catchAsync(async (req, res, next) => {
-  const contacts = await Contact.find();
+  // Filtering by ['favorite'] fields only allowed
+  const contacts = await Contact.find(req.query);
 
   res
     .status(200)

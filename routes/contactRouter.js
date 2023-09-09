@@ -18,8 +18,8 @@ router.route('/').get(listContacts).post(addContact);
 router
   .route('/:contactId')
   .get(protect, getContactById)
-  .delete(removeContact)
-  .put(updateContact);
+  .delete(protect, removeContact)
+  .put(protect, updateContact);
 
 router.patch('/:contactId/favourite', updateStatusContact);
 
