@@ -17,10 +17,6 @@ const userSchema = mongoose.Schema({
     enum: ['starter', 'pro', 'business'],
     default: 'starter',
   },
-  // token: {
-  //   type: String,
-  //   default: null,
-  // },
   owner: {
     type: Schema.Types.ObjectId,
     ref: 'user',

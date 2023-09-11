@@ -13,7 +13,7 @@ const { protect } = require('../controllers/authController');
 
 const router = express.Router();
 
-router.route('/').get(listContacts).post(addContact);
+router.route('/').get(protect, listContacts).post(protect, addContact);
 
 router
   .route('/:contactId')
@@ -21,6 +21,6 @@ router
   .delete(protect, removeContact)
   .put(protect, updateContact);
 
-router.patch('/:contactId/favourite', updateStatusContact);
+router.patch('/:contactId/favourite', protect, updateStatusContact);
 
 module.exports = router;

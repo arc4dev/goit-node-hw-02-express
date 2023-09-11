@@ -28,7 +28,13 @@ exports.signup = catchAsync(async (req, res, next) => {
     subscription: req.body.subscription,
   });
 
-  sendJWT(newUser._id, 201, res);
+  res.status(201).json({
+    status: 'success',
+    data: {
+      email: newUser.email,
+      subscription: newUser.subscription,
+    },
+  });
 });
 
 exports.login = catchAsync(async (req, res, next) => {
