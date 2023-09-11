@@ -6,7 +6,10 @@ const catchAsync = require('../utils/catchAsync');
 const AppError = require('../utils/AppError');
 
 // Helpers
-const signJWT = (id) => jwt.sign({ id }, process.env.JWT_SECRET_KEY);
+const signJWT = (id) =>
+  jwt.sign({ id }, process.env.JWT_SECRET_KEY, {
+    expiresIn: process.env.JWT_EXPIRATION,
+  });
 
 const sendJWT = (userID, statusCode, res) => {
   const token = signJWT(userID);
