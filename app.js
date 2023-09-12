@@ -4,7 +4,11 @@ const express = require('express');
 const logger = require('morgan');
 const cors = require('cors');
 
-const contactsRouter = require('./routes/contactsRouter');
+const contactsRouter = require('./routes/contactRouter');
+const userRouter = require('./routes/userRouter');
+const cookieParser = require('cookie-parser');
+const AppError = require('./utils/AppError');
+const errorHandler = require('./controllers/errorController');
 
 const app = express();
 
@@ -13,18 +17,18 @@ const formatsLogger = app.get('env') === 'development' ? 'dev' : 'short';
 // Middlewares
 app.use(logger(formatsLogger));
 app.use(cors());
+app.use(cookieParser());
 app.use(express.json());
 
 // Routes
 app.use('/api/contacts', contactsRouter);
+app.use('/users', userRouter);
 
-app.use((req, res) => {
-  res.status(404).json({ message: 'Not found' });
+app.all('*', (req, res, next) => {
+  next(new AppError('Page not found', 404));
 });
 
 // Error handler
-app.use((err, req, res, next) => {
-  res.status(500).json({ message: err.message });
-});
+app.use(errorHandler);
 
 module.exports = app;
