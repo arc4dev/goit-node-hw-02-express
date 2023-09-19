@@ -58,14 +58,6 @@ exports.logout = (req, res) => {
   res.status(200).json({ status: 'success', message: 'User logged out' });
 };
 
-exports.getMe = catchAsync(async (req, res, next) => {
-  const user = await User.findById(req.user._id);
-
-  if (!user) return next(new AppError('User not found', 404));
-
-  res.status(200).json({ status: 'success', data: user });
-});
-
 exports.protect = catchAsync(async (req, res, next) => {
   let token;
   // 1) Check if token is provided
