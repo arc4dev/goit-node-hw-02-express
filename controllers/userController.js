@@ -30,7 +30,10 @@ exports.resizePhoto = catchAsync(async (req, res, next) => {
   req.file.fieldname = `avatar-${req.user.id}-${Date.now()}.jpg`;
 
   // save photo to the public folder
-  await resizePhoto(req.file.buffer, `public/avatars/${req.file.fieldname}`);
+  await resizePhoto(
+    req.file.buffer,
+    `public/avatars/${req.file.fieldname}.jpg`
+  );
 
   next();
 });

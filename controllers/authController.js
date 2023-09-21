@@ -11,18 +11,6 @@ const signJWT = (id) =>
     expiresIn: process.env.JWT_EXPIRATION,
   });
 
-const sendJWT = (userID, statusCode, res) => {
-  const token = signJWT(userID);
-
-  // send a cookie with token
-  res.cookie('jwt', token, { httpOnly: true });
-
-  res.status(statusCode).json({
-    status: 'success',
-    token,
-  });
-};
-
 // Controller
 exports.signup = catchAsync(async (req, res, next) => {
   const newUser = await User.create({
@@ -33,7 +21,7 @@ exports.signup = catchAsync(async (req, res, next) => {
 
   res.status(201).json({
     status: 'success',
-    data: {
+    user: {
       email: newUser.email,
       subscription: newUser.subscription,
     },
@@ -41,7 +29,10 @@ exports.signup = catchAsync(async (req, res, next) => {
 });
 
 exports.login = catchAsync(async (req, res, next) => {
-  const user = await User.findOne({ email: req.body.email }).select('password');
+  // 1. Find user
+  const user = await User.findOne({ email: req.body.email }).select(
+    'password email subscription'
+  );
 
   if (
     !user ||
@@ -49,7 +40,20 @@ exports.login = catchAsync(async (req, res, next) => {
   )
     return next(new AppError('The email or password is incorrect', 401));
 
-  sendJWT(user._id, 200, res);
+  // 2. Create a token
+  const token = signJWT(user._id);
+
+  // 3. Send a cookie with token
+  res.cookie('jwt', token, { httpOnly: true });
+
+  res.status(200).json({
+    status: 'success',
+    token,
+    user: {
+      email: user.email,
+      subscription: user.subscription,
+    },
+  });
 });
 
 exports.logout = (req, res) => {
