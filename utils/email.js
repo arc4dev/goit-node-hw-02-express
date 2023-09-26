@@ -12,7 +12,7 @@ class Email {
 
   async send(subject, html) {
     const message = {
-      to: this.user, //change it
+      to: this.user.email, //change it
       from: this.from,
       subject,
       html,

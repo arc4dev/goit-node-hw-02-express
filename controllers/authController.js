@@ -22,7 +22,7 @@ exports.signup = catchAsync(async (req, res, next) => {
   });
 
   await new Email(
-    newUser.email,
+    newUser,
     `${req.protocol}://${req.get('host')}/users/verify/${
       newUser.verificationToken
     }`
@@ -130,4 +130,5 @@ exports.verify = catchAsync(async (req, res, next) => {
   });
 });
 
+// TODO
 exports.requestVerify = catchAsync(async (req, res, next) => {});
