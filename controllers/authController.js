@@ -4,6 +4,8 @@ const jwt = require('jsonwebtoken');
 const { promisify } = require('util');
 const catchAsync = require('../utils/catchAsync');
 const AppError = require('../utils/AppError');
+const { nanoid } = require('nanoid');
+const Email = require('../utils/email');
 
 // Helpers
 const signJWT = (id) =>
@@ -16,11 +18,19 @@ exports.signup = catchAsync(async (req, res, next) => {
   const newUser = await User.create({
     email: req.body.email,
     password: req.body.password,
-    subscription: req.body.subscription,
+    verificationToken: nanoid(),
   });
+
+  await new Email(
+    newUser.email,
+    `${req.protocol}://${req.get('host')}/users/verify/${
+      newUser.verificationToken
+    }`
+  ).sendWelcome();
 
   res.status(201).json({
     status: 'success',
+    message: 'Verification token has been sent to your email!',
     user: {
       email: newUser.email,
       subscription: newUser.subscription,
@@ -29,21 +39,27 @@ exports.signup = catchAsync(async (req, res, next) => {
 });
 
 exports.login = catchAsync(async (req, res, next) => {
-  // 1. Find user
+  // 1. Find a user
   const user = await User.findOne({ email: req.body.email }).select(
-    'password email subscription'
+    'password email subscription verify'
   );
 
+  // 2. Check if user provided a correct password
   if (
     !user ||
     !(await user.isCorrectPassword(req.body.password, user.password))
   )
     return next(new AppError('The email or password is incorrect', 401));
 
-  // 2. Create a token
+  // 3. Check if user is verified
+  if (!user.verify)
+    return next(
+      new AppError('User is not verified! Check your email inbox.', 401)
+    );
+
+  // 4. Create a token and send a cookie
   const token = signJWT(user._id);
 
-  // 3. Send a cookie with token
   res.cookie('jwt', token, { httpOnly: true });
 
   res.status(200).json({
@@ -90,3 +106,28 @@ exports.protect = catchAsync(async (req, res, next) => {
   req.user = user;
   next();
 });
+
+exports.verify = catchAsync(async (req, res, next) => {
+  const { verificationToken } = req.params;
+
+  // 1. Check if verification token is provided
+  if (!verificationToken)
+    return next(new AppError('Verification token is not provided!', 401));
+  // 2. Check if user exists
+  const user = await User.findOne({ verificationToken });
+
+  if (!user) return next(new AppError('User not found', 404));
+  // 3. Verify user
+
+  user.verify = true;
+  user.verificationToken = null;
+
+  await user.save();
+
+  res.status(200).json({
+    status: 'success',
+    message: 'Verification successfull! You can now log in.',
+  });
+});
+
+exports.requestVerify = catchAsync(async (req, res, next) => {});
