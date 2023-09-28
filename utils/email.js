@@ -12,14 +12,12 @@ class Email {
 
   async send(subject, html) {
     const message = {
-      to: this.user.email, //change it
+      to: this.user.email,
       from: this.from,
       subject,
       html,
       text: convert(html),
     };
-
-    console.log(message);
 
     await sendgrid.send(message);
   }

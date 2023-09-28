@@ -30,7 +30,7 @@ exports.signup = catchAsync(async (req, res, next) => {
 
   res.status(201).json({
     status: 'success',
-    message: 'Verification token has been sent to your email!',
+    message: 'Verification email sent!',
     user: {
       email: newUser.email,
       subscription: newUser.subscription,
@@ -131,4 +131,24 @@ exports.verify = catchAsync(async (req, res, next) => {
 });
 
 // TODO
-exports.requestVerify = catchAsync(async (req, res, next) => {});
+exports.requestVerify = catchAsync(async (req, res, next) => {
+  const { email } = req.body;
+
+  if (!email) return next(new AppError('Email is not provided!', 400));
+
+  const user = await User.findOne({ email });
+  if (!user || user.verify)
+    return next(new AppError('Verification has already passed', 400));
+
+  await new Email(
+    user,
+    `${req.protocol}://${req.get('host')}/users/verify/${
+      user.verificationToken
+    }`
+  ).sendWelcome();
+
+  res.status(200).json({
+    status: 'success',
+    message: 'Verification email sent!',
+  });
+});
