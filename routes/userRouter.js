@@ -4,6 +4,8 @@ const {
   logout,
   login,
   protect,
+  verify,
+  requestVerify,
 } = require('../controllers/authController');
 const {
   getMe,
@@ -20,5 +22,7 @@ router.get('/logout', logout);
 router.get('/me', protect, getMe);
 
 router.patch('/avatars', protect, uploadPhoto, resizePhoto, updatePhoto);
+router.get('/verify/:verificationToken', verify);
+router.post('/verify', requestVerify);
 
 module.exports = router;

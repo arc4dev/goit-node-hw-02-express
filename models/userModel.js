@@ -13,10 +13,15 @@ const userSchema = mongoose.Schema({
     required: [true, 'Email is required'],
     unique: true,
   },
+  verificationToken: String,
   subscription: {
     type: String,
     enum: ['starter', 'pro', 'business'],
     default: 'starter',
+  },
+  verify: {
+    type: Boolean,
+    default: false,
   },
   owner: {
     type: Schema.Types.ObjectId,
@@ -27,14 +32,15 @@ const userSchema = mongoose.Schema({
 
 // Hash password before save
 userSchema.pre('save', async function (next) {
-  this.password = await bcrypt.hash(this.password, 12);
+  if (this.isModified('password'))
+    this.password = await bcrypt.hash(this.password, 12);
 
   next();
 });
 
 // Create avatarUrl image based on email
 userSchema.pre('save', async function (next) {
-  this.avatarUrl = gravatar.url(this.email);
+  if (this.isModified('avatarUrl')) this.avatarUrl = gravatar.url(this.email);
 
   next();
 });
